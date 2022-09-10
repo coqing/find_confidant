@@ -1,0 +1,44 @@
+server:
+  port: xxxx
+
+spring:
+  application:
+    name: service-user
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://xxxx/services?characterEncoding=utf-8&useSSL=false
+    username: xxxx
+    password: xxxx
+    hikari:
+      max-lifetime: 30000
+  redis:
+    host: xxxx
+    port: xxxx
+    database: 2
+    timeout: 1800000
+    lettuce:
+      pool:
+        max-active: 20 # 连接池最大连接数（使用负值表示没有限制）
+        max-wait: -1 # 连接池最大阻塞等待时间（使用负值表示没有限制）
+        max-idle: 5 # 连接池中的最大空闲连接
+        min-idle: 0 # 连接池中的最小空闲连接
+  cloud:
+    nacos:
+      server-addr: xxxx
+      discovery:
+        username: xxxx
+        password: xxxx
+        namespace: public
+  jackson:
+    time-zone: GMT+16
+
+feign:
+  client:
+    config:
+      product-service:
+        loggerLevel: BASIC
+        contract: feign.Contract.Default #设置为默认的契约  （还原成原生注解）
+        # 连接超时时间，默认2s
+        connectTimeout: 5000
+        # 请求处理超时时间，默认5s
+        readTimeout: 10000

@@ -1,0 +1,25 @@
+server:
+  port: xxxx
+
+spring:
+  application:
+    name: service-gateway
+  cloud:
+    nacos:
+      server-addr: xxxx
+      discovery:
+        username: xxxx
+        password: xxxx
+        namespace: public
+    # gateway的配置
+    gateway:
+      #路由规则
+      routes:
+        - id: service_user # 用户服务 路由的唯一标识
+          uri: lb://service-user #需要转发的地址   lb:使用nacos中的本地负载均衡策略
+          predicates:
+            - Path=/api/user/**,/admin/user/**
+        - id: service_tag # 标签服务
+          uri: lb://service-tag
+          predicates:
+            - Path=/api/tag/**,Path=/admin/tag/**
