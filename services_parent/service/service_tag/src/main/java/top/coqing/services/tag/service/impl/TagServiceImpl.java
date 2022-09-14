@@ -73,21 +73,34 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
      * @return
      */
     @Override
-    @Cacheable(value = KEY_TAG,key = "'tagTree'")
     public List<Tag> getTagTree() {
-        System.out.println("666");
-        QueryWrapper<Tag> tagQueryWrapper = new QueryWrapper<>();
+        String key = KEY_TAG+"::tagTree";
 
-        HashMap<Long, Tag> tagMap = new HashMap<>();
-
-        for (Tag tag : tagMapper.selectList(tagQueryWrapper)) {
-            if(tag.getParent()==0){
-                tag.setChildren(new ArrayList<>());
-                tagMap.put(tag.getId(),tag);
-                continue;
+        // 双重检索
+        HashMap<Long, Tag> tagMap = (HashMap<Long, Tag>) redisTemplate.opsForValue().get(key);
+        if(tagMap==null){
+            synchronized (TagService.class){
+                tagMap = (HashMap<Long, Tag>) redisTemplate.opsForValue().get(key);
+                if(tagMap==null){
+                    tagMap = new HashMap<>();
+                    QueryWrapper<Tag> tagQueryWrapper = new QueryWrapper<>();
+                    List<Tag> tagList = tagMapper.selectList(tagQueryWrapper);
+                    if(tagList==null){
+                        return null;
+                    }else{
+                        // 封装子父结构
+                        for (Tag tag : tagList) {
+                            if(tag.getParent()==0){
+                                tag.setChildren(new ArrayList<>());
+                                tagMap.put(tag.getId(),tag);
+                                continue;
+                            }
+                            tagMap.get(tag.getParent()).getChildren().add(tag);
+                        }
+                        redisTemplate.opsForValue().setIfAbsent(key,tagMap);
+                    }
+                }
             }
-            tagMap.get(tag.getParent()).getChildren().add(tag);
-
         }
 
         return new ArrayList<Tag>(tagMap.values());
