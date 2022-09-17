@@ -12,10 +12,12 @@ import top.coqing.services.user.mapper.UserMapper;
 import top.coqing.services.user.service.UserService;
 
 import javax.annotation.Resource;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import static top.coqing.services.common.constant.RedisKeyConstant.KEY_USER_AND_TAGS;
+import static top.coqing.services.common.constant.RedisKeyConstant.KEY_USER_FOLLOW;
 
 
 @SpringBootTest
@@ -36,9 +38,19 @@ class ServiceUserApplicationTest {
 
     @Test
     void deleteRedis(){
+        String key = KEY_USER_FOLLOW+"::"+1;
+//        redisTemplate.opsForSet().
+//        Long add = redisTemplate.opsForSet().add(key, 2, 3);
+//        Set members = redisTemplate.opsForSet().members(key+"1");
+//        Set<Long> sets = new HashSet<>();
+        redisTemplate.opsForSet().remove(key,3l);
+//        redisTemplate.opsForSet().a;
+//        for (Object member : members) {
+//            System.out.println(member);
+//        }
 
-        User oneUserAndTags = userService.getOneUserAndTags(1l);
-        System.out.println(oneUserAndTags);
+//        User oneUserAndTags = userService.getOneUserAndTags(1l);
+//        System.out.println(oneUserAndTags);
 //        Set keys = redisTemplate.keys(KEY_USER_AND_TAGS + "*");
 //        Long delete = redisTemplate.delete(keys);
 //        System.out.println(delete);

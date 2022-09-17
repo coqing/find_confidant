@@ -12,5 +12,11 @@ public interface RedisKeyConstant {
      */
     String KEY_TAG = "tag";
 
+    /**
+     * 标签功能 的key前缀
+     */
+    String KEY_USER_FOLLOW = "follow";
+
+
 
 }

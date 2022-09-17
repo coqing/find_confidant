@@ -43,4 +43,11 @@ public interface TagService extends IService<Tag> {
      * @return
      */
     Map<String, Integer> getTagRank();
+
+    /**
+     * 验证标签id是否合法
+     * @param tags
+     * @return
+     */
+    boolean isLegal(List<Integer> tags);
 }

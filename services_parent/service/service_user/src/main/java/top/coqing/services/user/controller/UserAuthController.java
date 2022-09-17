@@ -26,6 +26,51 @@ public class UserAuthController {
     private UserService userService;
 
     /**
+     * 判断是否关注对方
+     * @param userId
+     * @param id
+     * @return
+     */
+    @GetMapping("/isFollow/{id}")
+    public Result isFollow(@RequestHeader("userId") Long userId,@PathVariable("id") Long id){
+        boolean flag = userService.isFollow(userId,id);
+        return Result.success(flag);
+    }
+
+    /**
+     * 获取关注列表
+     * @param userId
+     * @return
+     */
+    @GetMapping("/followList")
+    public Result followList(@RequestHeader("userId") Long userId){
+
+        List<User> userList = userService.followList(userId);
+        if(userList==null){
+            return Result.fail();
+        }
+        return Result.success(userList);
+    }
+
+    /**
+     * 关注或取消关注
+     * @param userId
+     * @param id
+     * @return
+     */
+    @GetMapping("/follow/{id}")
+    public Result follow(@RequestHeader("userId") Long userId,@PathVariable("id") Long id){
+        if(id==null||id<=0){
+            throw new GlobalException(StateCode.PARAMS_ERROR);
+        }
+        boolean flag = userService.follow(userId,id);
+        if(flag){
+            return Result.success();
+        }
+        return Result.fail();
+    }
+
+    /**
      * 修改用户信息
      * @param updateUser
      * @param userId

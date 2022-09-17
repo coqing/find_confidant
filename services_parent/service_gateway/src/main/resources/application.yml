@@ -23,3 +23,7 @@ spring:
           uri: lb://service-tag
           predicates:
             - Path=/api/tag/**,Path=/admin/tag/**
+        - id: service_chat # 标签服务
+          uri: lb://service-chat
+          predicates:
+            - Path=/api/chat/**,Path=/admin/chat/**

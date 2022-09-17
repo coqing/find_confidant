@@ -192,6 +192,39 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
 
         return getTagRank;
     }
+
+    /**
+     * 验证标签id是否合法
+     * @param tags
+     * @return
+     */
+    @Override
+    public boolean isLegal(List<Integer> tags) {
+
+        QueryWrapper<Tag> tagQueryWrapper = new QueryWrapper<>();
+        List<Tag> tagList = tagMapper.selectList(tagQueryWrapper);
+
+        if(tagList==null){
+            return false;
+        }
+
+        boolean flag;
+        for(Integer i:tags){
+            flag = false; // 标签不存在的状态
+            for(Tag tag: tagList){
+                if(tag.getParent()!=0 && tag.getId().intValue() == i.intValue()){
+                    //标签存在
+                    flag=true;
+                    break;
+                }
+            }
+            if(!flag){
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
 
 

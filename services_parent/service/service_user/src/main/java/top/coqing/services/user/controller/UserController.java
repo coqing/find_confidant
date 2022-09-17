@@ -86,5 +86,17 @@ public class UserController {
     }
 
 
+    /**
+     * 初始化用户和标签 TODO 后期移动到管理员权限下
+     * @return
+     */
+    @GetMapping("/refresh")
+    public Result refresh(){
+        boolean res = userService.initUserAndTagsToRedis();
+        if(res){
+            return Result.success();
+        }
+        return Result.fail();
+    }
 
 }
