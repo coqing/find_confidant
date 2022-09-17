@@ -2,6 +2,7 @@ package top.coqing.services.user.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -10,9 +11,11 @@ import org.springframework.util.DigestUtils;
 import top.coqing.services.common.exception.GlobalException;
 import top.coqing.services.common.result.StateCode;
 import top.coqing.services.model.tag.Tag;
+import top.coqing.services.model.user.Follow;
 import top.coqing.services.model.user.User;
 import top.coqing.services.model.user.request.LoginUser;
 import top.coqing.services.tag.client.TagFeignClient;
+import top.coqing.services.user.mapper.FollowMapper;
 import top.coqing.services.user.service.UserService;
 import top.coqing.services.user.mapper.UserMapper;
 import org.springframework.stereotype.Service;
@@ -24,6 +27,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static top.coqing.services.common.constant.RedisKeyConstant.KEY_USER_AND_TAGS;
+import static top.coqing.services.common.constant.RedisKeyConstant.KEY_USER_FOLLOW;
 
 /**
 * @author coqing
@@ -43,6 +47,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Resource
     private RedisTemplate redisTemplate;
+
+    @Resource
+    private FollowMapper followMapper;
 
 
     private static final String SALT = "coqing-aabbccdd";
@@ -142,15 +149,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      * @return
      */
     @Override
-    @Cacheable(value = KEY_USER_AND_TAGS,key = "#id")
     public User getOneUserAndTags(long id) {
-
-        User user = userMapper.selectById(id);
-        if (user==null){
-            throw new GlobalException(StateCode.FAIL,"没有该用户");
+        String key = KEY_USER_AND_TAGS+"::"+id;
+        User res = (User) redisTemplate.opsForValue().get(key);
+        if(res==null){
+            System.out.println(id);
+            System.out.println("666");
+            res = userMapper.selectById(id);
+            if (res==null){
+                throw new GlobalException(StateCode.FAIL,"没有该用户");
+            }
+            res.setTagList(tagFeignClient.tagsById(res.getId()));
+            redisTemplate.opsForValue().set(key,res);
         }
-        user.setTagList(tagFeignClient.tagsById(user.getId()));
-        return getSafetyUser(user);
+
+        return getSafetyUser(res);
     }
 
     /**
@@ -302,6 +315,76 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         User oneUserAndTags = getOneUserAndTags(id);
         oneUserAndTags.setTagList(tags);
         return oneUserAndTags;
+    }
+
+    /**
+     * 关注或取消关注
+     * @param userId
+     * @param id
+     * @return
+     */
+    @Override
+    public boolean follow(Long userId, Long id) {
+        String key = KEY_USER_FOLLOW+"::"+userId;
+        QueryWrapper<Follow> followQueryWrapper = new QueryWrapper<>();
+        followQueryWrapper.eq("from_id",userId);
+        followQueryWrapper.eq("to_id",id);
+        Integer integer = followMapper.selectCount(followQueryWrapper);
+        if(integer>0){
+            followMapper.delete(followQueryWrapper);
+            redisTemplate.opsForSet().remove(key,id);
+        }else{
+            Follow follow = new Follow();
+            follow.setFromId(userId);
+            follow.setToId(id);
+            followMapper.insert(follow);
+            redisTemplate.opsForSet().add(key,id);
+        }
+
+        return true;
+    }
+
+    /**
+     * 获取关注列表
+     * @param userId
+     * @return
+     */
+    @Override
+    public List<User> followList(Long userId) {
+
+        String key = KEY_USER_FOLLOW+"::"+userId;
+        Set<Integer> sets = redisTemplate.opsForSet().members(key);
+
+        if(sets.size()==0){
+            QueryWrapper<Follow> followQueryWrapper = new QueryWrapper<>();
+            followQueryWrapper.eq("from_id",userId);
+            List<Follow> follows = followMapper.selectList(followQueryWrapper);
+            for(Follow follow:follows){
+                sets.add(follow.getToId().intValue());
+                redisTemplate.opsForSet().add(key,follow.getToId());
+            }
+        }
+
+        ArrayList<User> users = new ArrayList<>();
+        for (Integer member : sets) {
+            users.add(getOneUserAndTags((long)member));
+        }
+
+        return users;
+    }
+
+    /**
+     * 判断是否关注对方
+     * @param userId
+     * @param id
+     * @return
+     */
+    @Override
+    public boolean isFollow(Long userId, Long id) {
+
+        String key = KEY_USER_FOLLOW+"::"+userId;
+        Boolean member = redisTemplate.opsForSet().isMember(key, id);
+        return member;
     }
 
 

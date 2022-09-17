@@ -64,4 +64,27 @@ public interface UserService extends IService<User> {
      * @return
      */
     User updateUserTags(List<Tag> tags, Long id);
+
+    /**
+     * 关注或取消关注
+     * @param userId
+     * @param id
+     * @return
+     */
+    boolean follow(Long userId, Long id);
+
+    /**
+     * 获取关注列表
+     * @param userId
+     * @return
+     */
+    List<User> followList(Long userId);
+
+    /**
+     * 判断是否关注对方
+     * @param userId
+     * @param id
+     * @return
+     */
+    boolean isFollow(Long userId, Long id);
 }
