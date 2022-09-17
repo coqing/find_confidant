@@ -19,4 +19,9 @@ public interface UserFeignClient {
 
     @PostMapping("/admin/user/updateUserTags/{id}")
     public boolean updateUserTags(@RequestBody List<Tag> tags,@PathVariable("id") Long id);
+
+    @GetMapping("/admin/user/info/{id}")
+    public User info(@PathVariable("id") Long id);
+
+
 }

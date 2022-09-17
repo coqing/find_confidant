@@ -21,6 +21,17 @@ public class UserAdminController {
     @Resource
     private UserService userService;
 
+    /**
+     * 根据网关操作token获取的userId查询用户信息
+     * @param userId
+     * @return
+     */
+    @GetMapping("/info/{id}")
+    public User info(@PathVariable("id") Long id){
+        User oneUserAndTags = userService.getOneUserAndTags(id);
+        return oneUserAndTags;
+    }
+
     /*
     查询脱敏后的全部用户
      */
