@@ -1,16 +1,16 @@
 server:
-  port:
+  port: 10601
 
 spring:
   application:
     name: service-gateway
   cloud:
     nacos:
-      server-addr:
+      server-addr: 124.221.74.242:10201
       discovery:
-        username:
-        password:
-        namespace:
+        username: nacos
+        password: aabbccdd
+        namespace: public
     # gateway的配置
     gateway:
       #路由规则
