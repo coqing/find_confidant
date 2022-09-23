@@ -21,6 +21,7 @@ import top.coqing.services.user.client.UserFeignClient;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static top.coqing.services.common.constant.RedisKeyConstant.KEY_TAG;
 
@@ -76,6 +77,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
         return tagList;
     }
 
+
     /**
      * 查询所有标签构成的标签树
      * @return
@@ -87,19 +89,11 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag>
         DistributedRedisLock redisLock = distributedLockClient.getRedisLock(KEY_TAG + "::distributed::tagTree");
         String key = KEY_TAG+"::tagTree";
         HashMap<Long, Tag> tagMap = (HashMap<Long, Tag>) redisTemplate.opsForValue().get(key);
-        log.info("in");
         if(tagMap==null){
             redisLock.lock();
-            log.info("lock");
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
             try {
                 tagMap = (HashMap<Long, Tag>) redisTemplate.opsForValue().get(key);
                 if(tagMap==null){
-                    log.info("select");
                     tagMap = new HashMap<>();
                     QueryWrapper<Tag> tagQueryWrapper = new QueryWrapper<>();
                     List<Tag> tagList = tagMapper.selectList(tagQueryWrapper);
