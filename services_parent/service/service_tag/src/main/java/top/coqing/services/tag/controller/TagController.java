@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import top.coqing.services.common.result.Result;
 import top.coqing.services.model.tag.Tag;
 import top.coqing.services.model.user.User;
+import top.coqing.services.tag.aspect.CallTime;
 import top.coqing.services.tag.service.TagService;
 import top.coqing.services.user.client.UserFeignClient;
 
@@ -44,6 +45,18 @@ public class TagController {
     public Result getTagTree(){
         List<Tag> tagTree = tagService.getTagTree();
         return Result.success(tagTree);
+    }
+
+
+    /**
+     * 测试打印时间切面
+     * @return
+     */
+    @CallTime
+    @GetMapping("/test")
+    public Result test() throws InterruptedException {
+        Thread.sleep(1000);
+        return Result.success();
     }
 
 }

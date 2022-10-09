@@ -9,6 +9,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import top.coqing.services.model.tag.Tag;
 import top.coqing.services.model.user.User;
+import top.coqing.services.tag.aspect.CallTime;
 import top.coqing.services.tag.mapper.TagMapper;
 import top.coqing.services.tag.service.TagService;
 
@@ -33,6 +34,21 @@ class ServiceTagApplicationTest {
 
     @Resource
     private TagService tagService;
+
+
+    @Test
+    void redis4(){
+        String myKey="article_uv_"+1;
+        System.out.println(redisTemplate.opsForSet().size("aaaa"));
+        Boolean aBoolean = redisTemplate.hasKey(myKey);
+        System.out.println(aBoolean);
+        System.out.println(redisTemplate.opsForSet().add(myKey, 1));
+        System.out.println(redisTemplate.opsForSet().add(myKey, 2));
+        System.out.println(redisTemplate.opsForSet().add(myKey, 1));
+        System.out.println(redisTemplate.opsForSet().size(myKey));
+        System.out.println(redisTemplate.hasKey(myKey));
+
+    }
 
 
     @Test
