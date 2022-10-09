@@ -28,8 +28,15 @@ import java.util.HashMap;
 public class UserController {
 
 
+
+
     @Resource
     private UserService userService;
+
+    @PostMapping("/test")
+    public Result test(){
+        return Result.success("xxx");
+    }
 
     /**
      * 用户登录
@@ -38,28 +45,29 @@ public class UserController {
      */
     @PostMapping("/login")
     public Result login(@RequestBody LoginUser loginUser){
-        if(loginUser==null){
-            throw new GlobalException(StateCode.NULL_ERROR);
-        }
-        // null 空字符串 空格
-        if(StringUtils.isAnyBlank(loginUser.getUserAccount(),loginUser.getPassword())){
-            throw new GlobalException(StateCode.PARAMS_ERROR);
-        }
-
-        User login = userService.login(loginUser);
-        if(null==login){
-            throw new GlobalException(StateCode.FAIL,"账号或密码错误");
-        }
-
-        HashMap<String, Object> loginResponse = new HashMap<>();
-
-        // 获取包含标签列表的用户数据
-        User userAndTags = userService.getOneUserAndTags(login.getId());
-
-        loginResponse.put("token",JwtHelper.createToken(userAndTags));
-        loginResponse.put("user",userAndTags);
-
-        return Result.success(loginResponse);
+//        if(loginUser==null){
+//            throw new GlobalException(StateCode.NULL_ERROR);
+//        }
+//        // null 空字符串 空格
+//        if(StringUtils.isAnyBlank(loginUser.getUserAccount(),loginUser.getPassword())){
+//            throw new GlobalException(StateCode.PARAMS_ERROR);
+//        }
+//
+//        User login = userService.login(loginUser);
+//        if(null==login){
+//            throw new GlobalException(StateCode.FAIL,"账号或密码错误");
+//        }
+//
+//        HashMap<String, Object> loginResponse = new HashMap<>();
+//
+//        // 获取包含标签列表的用户数据
+//        User userAndTags = userService.getOneUserAndTags(login.getId());
+//
+//        loginResponse.put("token",JwtHelper.createToken(userAndTags));
+//        loginResponse.put("user",userAndTags);
+//
+//        return Result.success(loginResponse);
+        return Result.success("xxx");
     }
 
     /**

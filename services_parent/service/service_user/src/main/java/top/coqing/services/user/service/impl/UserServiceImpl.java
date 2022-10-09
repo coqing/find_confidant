@@ -277,15 +277,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 //        User user = userMapper.selectById(updateUser.getId());
         User user = new User();
         user.setId(updateUser.getId());
+        // 昵称
         if(updateUser.getUserName()!=null){
             user.setUserName(updateUser.getUserName());
         }
+        // 头像
         if(updateUser.getAvatarUrl()!=null){
             user.setAvatarUrl(updateUser.getAvatarUrl());
         }
+        // 性别
         if(updateUser.getGender()!=null){
             user.setGender(updateUser.getGender());
         }
+        // 简介
         if(updateUser.getProfile()!=null){
             user.setProfile(updateUser.getProfile());
         }
